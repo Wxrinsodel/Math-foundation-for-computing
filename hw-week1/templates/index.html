@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Finding</title>
+</head>
+<body>
+    <h1>Root Finding using Bisection and Newton's Method</h1>
+    <form method="POST">
+        Function: <input type="text" name="function" required><br>
+        Interval a: <input type="number" step="any" name="a" required><br>
+        Interval b: <input type="number" step="any" name="b" required><br>
+        Tolerance: <input type="number" step="any" name="tol" required><br>
+        <input type="submit" value="Find Roots">
+    </form>
+
+    {% if root_bisection %}
+    <h2>Results</h2>
+    <p>Bisection Method: Root = {{ root_bisection }}, Iterations = {{ iterations_bisection }}</p>
+    <p>Newton's Method: Root = {{ root_newton }}, Iterations = {{ iterations_newton }}</p>
+    <img src="data:image/png;base64,{{ plot_url }}" alt="Convergence Graph">
+    {% else %}
+    <p>No results to display. Please submit the form.</p>
+    {% endif %}
+</body>
+</html>
