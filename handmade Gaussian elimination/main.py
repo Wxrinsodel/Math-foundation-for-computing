@@ -21,7 +21,7 @@ def round_to_hundredth(matrix_or_vector):
         return [round(element, 2) for element in matrix_or_vector] # Round to the nearest hundredth
 
 # Test the function
-size = 4
+size = 3
 A, b, x = generate_random_linear_system(size)
 print("Random Matrix A:")
 for row in A:
@@ -79,7 +79,7 @@ def backward_substitution(A, b):
     
     for i in range(size - 1, -1, -1):  # Iterate over rows in reverse order
         if A[i][i] == 0:
-            raise ValueError("Division by zero encountered in backward substitution.")
+            raise ValueError("Division by zero encountered in backward substitution. The system may be singular.")
         x[i] = b[i] / A[i][i]
         for j in range(i):
             b[j] -= A[j][i] * x[i]  # Update right-hand side vector b
@@ -110,3 +110,49 @@ def test_solution(A, x, original_b):
 # Test the solution
 is_correct = test_solution(original_A, solution_x, original_b)
 print("Is the solution correct?", is_correct)
+
+# Task 5
+def generate_hilbert_matrix(size):
+    return [[1 / (i + j + 1) for j in range(size)] for i in range(size)]
+
+def compute_residual(A, x, b):
+    size = len(A) 
+    b_calculated = [sum(A[i][j] * x[j] for j in range(size)) for i in range(size)]
+    residual = [b_calculated[i] - b[i] for i in range(size)]  
+    return round_to_hundredth(residual)
+
+# Compare Gaussian elimination on normal random matrix vs. Hilbert matrix
+def compare_gaussian_elimination(size):
+    print("-------------------------------------------")
+    print(f"Comparing Gaussian elimination for N = {size}")
+    
+    # Normal random matrix
+    A_random, b_random, _ = generate_random_linear_system(size)
+    A_hilbert = generate_hilbert_matrix(size)
+    b_hilbert = [sum(A_hilbert[i][j] * (j + 1) for j in range(size)) for i in range(size)]
+    
+    # Solve using Gaussian elimination
+    print("\nSolving normal random matrix:")
+    A_random_copy = [row.copy() for row in A_random]
+    b_random_copy = b_random.copy()
+    A_random_copy, b_random_copy = forward_gaussian_elimination(A_random_copy, b_random_copy)
+    x_random = backward_substitution(A_random_copy, b_random_copy)
+    residual_random = compute_residual(A_random, x_random, b_random)
+    
+    print("Solution for random matrix:", x_random)
+    print("Residual (Ax - b) for random matrix:", residual_random)
+    
+    print("\nSolving Hilbert matrix:")
+    A_hilbert_copy = [row.copy() for row in A_hilbert]
+    b_hilbert_copy = b_hilbert.copy()
+    A_hilbert_copy, b_hilbert_copy = forward_gaussian_elimination(A_hilbert_copy, b_hilbert_copy)
+    x_hilbert = backward_substitution(A_hilbert_copy, b_hilbert_copy)
+    residual_hilbert = compute_residual(A_hilbert, x_hilbert, b_hilbert)
+    
+    print("Solution for Hilbert matrix:", x_hilbert)
+    print("Residual (Ax - b) for Hilbert matrix:", residual_hilbert)
+    print("-------------------------------------------")
+
+# Run comparisons for different sizes
+for n in [1, 2, 3, 4, 5]:
+    compare_gaussian_elimination(n)
