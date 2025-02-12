@@ -1,4 +1,5 @@
 import random
+import matplotlib.pyplot as plt
 
 def generate_diagonally_dominant_matrix(n):
     # Generate a random n x n matrix with diagonal dominance
@@ -48,6 +49,7 @@ print("Initial approximation x0:", x0)
 def jacobi_iteration_with_stop(A, b, x0, tolerance=1e-6, max_iterations=1000):
     n = len(A)
     x = x0.copy()
+    error_history = []
     for iteration in range(max_iterations):
         x_new = [0.0 for _ in range(n)]
         for i in range(n):
@@ -59,20 +61,22 @@ def jacobi_iteration_with_stop(A, b, x0, tolerance=1e-6, max_iterations=1000):
         
         # Check for convergence
         error = max(abs(x_new[i] - x[i]) for i in range(n))
+        error_history.append(error)
         if error < tolerance:
             print(f"Converged after {iteration + 1} iterations.")
             break
         
         x = x_new
         print(f"Iteration {iteration + 1}: {x}") # Print intermediate results
-    return x
+    return x, error_history
 
-x_jacobi = jacobi_iteration_with_stop(A, b, x0)
+x_jacobi, jacobi_error_history = jacobi_iteration_with_stop(A, b, x0)
 
 # Implementing Gauss-Seidel iteration algorithm
 def gauss_seidel_iteration(A, b, x0, tolerance=1e-6, max_iterations=1000):
     n = len(A)
     x = x0.copy()
+    error_history = []
     for iteration in range(max_iterations): # Iterate until convergence
         for i in range(n):
             sigma = 0.0 # Compute the dot product
@@ -83,14 +87,27 @@ def gauss_seidel_iteration(A, b, x0, tolerance=1e-6, max_iterations=1000):
         
         # Check for convergence
         error = max(abs((b[i] - sum(A[i][j] * x[j] for j in range(n))) / A[i][i]) for i in range(n))
+        error_history.append(error)
         if error < tolerance: # Convergence criterion
             print(f"Converged after {iteration + 1} iterations.")
             break
         
         print(f"Iteration {iteration + 1}: {x}") # Print intermediate results
-    return x
+    return x, error_history
 
-x_gauss_seidel = gauss_seidel_iteration(A, b, x0)
+x_gauss_seidel, gauss_seidel_error_history = gauss_seidel_iteration(A, b, x0)
+
+# Plot convergence graphs
+plt.figure(figsize=(10, 6))
+plt.plot(jacobi_error_history, label='Jacobi Method')
+plt.plot(gauss_seidel_error_history, label='Gauss-Seidel Method')
+plt.xlabel('Iteration Number')
+plt.ylabel('Error')
+plt.yscale('log')
+plt.title('Convergence of Jacobi and Gauss-Seidel Methods')
+plt.legend()
+plt.grid(True)
+plt.show()
 
 # Test Gauss-Seidel algorithm with Hilbert matrix
 def generate_hilbert_matrix(n):
@@ -100,6 +117,6 @@ def generate_hilbert_matrix(n):
 H = generate_hilbert_matrix(n)
 b_hilbert = [1.0 for _ in range(n)] # All elements are 1
 x0_hilbert = [random.uniform(-0.5, 0.5) for _ in range(n)] # Random initial approximation
-x_hilbert_gauss_seidel = gauss_seidel_iteration(H, b_hilbert, x0_hilbert) # Run Gauss-Seidel
+x_hilbert_gauss_seidel, hilbert_gauss_seidel_error_history = gauss_seidel_iteration(H, b_hilbert, x0_hilbert) # Run Gauss-Seidel
 
 print("Approximate solution (Gauss-Seidel with Hilbert matrix):", x_hilbert_gauss_seidel)
