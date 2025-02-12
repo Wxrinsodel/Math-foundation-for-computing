@@ -1,32 +1,37 @@
-import numpy as np
+import random
 
 def generate_diagonally_dominant_matrix(n):
-    # Generate a random matrix
-    A = np.random.rand(n, n)
-    
-    # Make it diagonally dominant
+    # Generate a random n x n matrix with diagonal dominance
+    A = [[0.0 for _ in range(n)] for _ in range(n)]
     for i in range(n):
-        A[i, i] = np.sum(np.abs(A[i, :])) + 1  # Ensure diagonal dominance
-    
-    # Generate exact solution
-    x_exact = np.random.rand(n)
-    
-    # Compute b such that A @ x_exact = b
-    b = A @ x_exact
-    
-    return A, b, x_exact
+        for j in range(n):
+            if i == j:
+                A[i][j] = random.uniform(10, 20)  # Ensure diagonal dominance
+            else:
+                A[i][j] = random.uniform(-1, 1)
+    return A
 
-n = 3
-A, b, x_exact = generate_diagonally_dominant_matrix(n)
-print("A:\n", A)
-print("b:\n", b)
-print("x_exact:\n", x_exact)
+def generate_exact_solution(n):
+    # Generate a random exact solution vector
+    return [random.uniform(-10, 10) for _ in range(n)]
+
+def compute_vector_b(A, x_exact):
+    # Compute b = A * x_exact
+    n = len(A)
+    b = [0.0 for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            b[i] += A[i][j] * x_exact[j] # Compute the dot product
+    return b
+
+n = 2
+A = generate_diagonally_dominant_matrix(n)
+x_exact = generate_exact_solution(n)
+b = compute_vector_b(A, x_exact)
 
 
-def generate_initial_approximation(x_exact):
-    # Add small random values between -0.5 and 0.5 to the exact solution
-    x0 = x_exact + np.random.uniform(-0.5, 0.5, size=x_exact.shape)
-    return x0
-
-x0 = generate_initial_approximation(x_exact)
-print("x0:\n", x0)
+print("Matrix A:")
+for row in A:
+    print(row)
+print("Exact solution x_exact:", x_exact)
+print("Vector b:", b)
