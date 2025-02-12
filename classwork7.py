@@ -35,3 +35,11 @@ for row in A:
     print(row)
 print("Exact solution x_exact:", x_exact)
 print("Vector b:", b)
+
+#1.b
+def generate_initial_approximation(x_exact):
+    # Add small random values to the exact solution
+    return [x_exact[i] + random.uniform(-0.5, 0.5) for i in range(len(x_exact))]
+
+x0 = generate_initial_approximation(x_exact)
+print("Initial approximation x0:", x0)
