@@ -43,3 +43,23 @@ def generate_initial_approximation(x_exact):
 
 x0 = generate_initial_approximation(x_exact)
 print("Initial approximation x0:", x0)
+
+
+#1.c
+def jacobi_iteration(A, b, x0, max_iterations=10):
+    n = len(A)
+    x = x0.copy()
+    for iteration in range(max_iterations):
+        x_new = [0.0 for _ in range(n)]
+        for i in range(n):
+            sigma = 0.0
+            for j in range(n):
+                if j != i:
+                    sigma += A[i][j] * x[j]
+            x_new[i] = (b[i] - sigma) / A[i][i]
+        x = x_new
+        print(f"Iteration {iteration + 1}: {x}")
+    return x
+
+# Perform 10 Jacobi iterations
+x_jacobi = jacobi_iteration(A, b, x0)
