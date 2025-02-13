@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from scipy.interpolate import lagrange
 
 def build_vandermonde_matrix(x_values):
     """Build the Vandermonde matrix for interpolation."""
@@ -13,34 +13,25 @@ def interpolate_function(f, a, b, m):
     x_values = np.linspace(a, b, m)
     y_values = f(x_values)
     
-    V = build_vandermonde_matrix(x_values) # Vandermonde matrix
-    coefficients = np.linalg.solve(V, y_values)
+    V = build_vandermonde_matrix(x_values)  # Vandermonde matrix
+    coefficients, _, _, _ = np.linalg.lstsq(V, y_values, rcond=None)  # Using least squares
     
     return coefficients, x_values, y_values
 
+# Implement the polynomial interpolation
+
 def polynomial(coefficients, x):
     """Evaluate the interpolation polynomial at x."""
-    return sum(c * x**i for i, c in enumerate(coefficients))
+    return np.polyval(coefficients[::-1], x)
 
-
-# Lagrange interpolation
-def lagrange_polynomial(x_values, y_values, x):
-    """Evaluate the Lagrange interpolation polynomial at x."""
-    def L(k, x):
-        """Compute the k-th Lagrange basis polynomial at x."""
-        terms = [(x - x_values[j]) / (x_values[k] - x_values[j]) for j in range(len(x_values)) if j != k]
-        return np.prod(terms) # Product of terms
-    
-    return sum(y_values[k] * L(k, x) for k in range(len(x_values)))
-
-
-# Plotting functions
 def plot_interpolation(f, a, b, coefficients, x_values, y_values):
     """Plot the original function and the interpolation polynomials."""
     x_plot = np.linspace(a, b, 1000)
     y_plot = f(x_plot)
-    y_interp = [polynomial(coefficients, x) for x in x_plot]
-    y_lagrange = [lagrange_polynomial(x_values, y_values, x) for x in x_plot]
+    y_interp = np.polyval(coefficients[::-1], x_plot)
+    
+    lagrange_poly = lagrange(x_values, y_values)
+    y_lagrange = lagrange_poly(x_plot)
     
     plt.plot(x_plot, y_plot, label="Original function", linestyle="dashed")
     plt.plot(x_plot, y_interp, label="Interpolation polynomial (SLE)", linewidth=2)
@@ -53,8 +44,23 @@ def plot_interpolation(f, a, b, coefficients, x_values, y_values):
     plt.show()
 
 if __name__ == "__main__":
-    f = lambda x: np.sin(3*(x)) 
-    a, b, m = 0, np.pi, 5
+    # Experiment with different functions and number of points
+    functions = [
+        lambda x: np.sin(8 * x),
+        lambda x: np.sin(5 * x),
+        lambda x: np.exp(x),
+        lambda x: x**2 + 2*x + 1
+    ]
     
-    coefficients, x_values, y_values = interpolate_function(f, a, b, m)
-    plot_interpolation(f, a, b, coefficients, x_values, y_values)
+    intervals = [
+        (0, np.pi),
+        (0, 2 * np.pi),
+        (0, 1),
+        (-1, 1)
+    ]
+    
+    points = [4, 5, 7, 8, 10]
+    
+    for f, (a, b), m in zip(functions, intervals, points):
+        coefficients, x_values, y_values = interpolate_function(f, a, b, m)
+        plot_interpolation(f, a, b, coefficients, x_values, y_values)
