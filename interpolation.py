@@ -53,6 +53,19 @@ def interpolate_lagrange(points):
     return polynomial.simplify()
 
 
+# Implement the parametric polynomial interpolation
+def interpolate_parametric(points):
+    t = sp.symbols('t')
+    n = len(points)
+    t_values = np.linspace(0, 1, n)
+    
+    x_values, y_values = zip(*points)
+    x_poly = interpolate_lagrange(list(zip(t_values, x_values)))
+    y_poly = interpolate_lagrange(list(zip(t_values, y_values)))
+    
+    return x_poly, y_poly
+
+
 # Implement the polynomial interpolation
 if __name__ == "__main__":
     choice = input("Choose input method (1: Function, 2: File): ")
@@ -82,3 +95,9 @@ if __name__ == "__main__":
     # Lagrange interpolation
     polynomial_lagrange = interpolate_lagrange(points)
     print("Interpolation polynomial using Lagrange formula:", polynomial_lagrange)
+
+    # Parametric interpolation
+    x_poly, y_poly = interpolate_parametric(points)
+    print("Parametric interpolation polynomials:")
+    print("x(t) =", x_poly)
+    print("y(t) =", y_poly)
