@@ -30,7 +30,26 @@ def interpolate_sle(points):
     b = sp.Matrix([pt[1] for pt in points])
     coeffs = A.LUsolve(b)
     
+    # Construct the polynomial
     polynomial = sum(coeffs[i] * x**i for i in range(n))
+    return polynomial.simplify()
+
+
+# Implement the Lagrange polynomial interpolation
+def interpolate_lagrange(points):
+    x = sp.symbols('x')
+    n = len(points)
+    polynomial = 0
+    
+    for i in range(n):
+        xi, yi = points[i]
+        li = 1
+        for j in range(n):
+            if i != j:
+                xj, _ = points[j]
+                li *= (x - xj) / (xi - xj)
+        polynomial += yi * li
+    
     return polynomial.simplify()
 
 
@@ -56,5 +75,10 @@ if __name__ == "__main__":
     for point in points:
         print(point)
     
-    polynomial = interpolate_sle(points)
-    print("Interpolation polynomial using SLE:", polynomial)
+    # Solve the system of linear equations
+    polynomial_sle = interpolate_sle(points)
+    print("Interpolation polynomial using SLE:", polynomial_sle)
+    
+    # Lagrange interpolation
+    polynomial_lagrange = interpolate_lagrange(points)
+    print("Interpolation polynomial using Lagrange formula:", polynomial_lagrange)
