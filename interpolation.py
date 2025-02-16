@@ -20,7 +20,8 @@ def get_interpolation_points(func_str, a, b, degree):
     
     return list(zip(x_values, y_values))
 
-# Read points from a file
+
+# Add the following functions to the end of the file
 def read_points_from_file(filename):
     points = []
     with open(filename, 'r') as file:
@@ -30,15 +31,14 @@ def read_points_from_file(filename):
     return points
 
 
-# Implement the polynomial interpolation
+# Add the following functions to the end of the file
 def interpolate_sle(points):
     n = len(points)
     x = sp.symbols('x')
-
     # Convert points to float explicitly
     A = sp.Matrix([[float(pt[0])**i for i in range(n)] for pt in points])
     b = sp.Matrix([float(pt[1]) for pt in points])
-    coeffs = A.LUsolve(b) # Solve the system of linear equations
+    coeffs = A.LUsolve(b)
     
     # Construct the polynomial using SymPy
     polynomial = 0
@@ -46,14 +46,15 @@ def interpolate_sle(points):
         polynomial += coeffs[i] * x**i
     return polynomial
 
-# Implement the Lagrange interpolation
+
+# Add the following functions to the end of the file
 def interpolate_lagrange(points):
     x = sp.symbols('x')
     n = len(points)
     polynomial = 0
     
     for i in range(n):
-        xi, yi = float(points[i][0]), float(points[i][1]) # Convert to float explicitly
+        xi, yi = float(points[i][0]), float(points[i][1])
         li = 1
         for j in range(n):
             if i != j:
@@ -63,7 +64,8 @@ def interpolate_lagrange(points):
     
     return polynomial
 
-# Implement the parametric interpolation
+
+# Add the following functions to the end of the file
 def interpolate_parametric(points):
     t = sp.symbols('t')
     n = len(points)
@@ -78,7 +80,8 @@ def interpolate_parametric(points):
     
     return x_poly, y_poly
 
-# Evaluate a SymPy expression at a given value
+
+# Add the following functions to the end of the file
 def evaluate_expression(expr, symbol, value):
     """Safely evaluate a SymPy expression at a given value."""
     try:
@@ -87,7 +90,33 @@ def evaluate_expression(expr, symbol, value):
     except:
         return np.nan
 
-# Plot the interpolation polynomials
+
+# Add the following functions to the end of the file
+def evaluate_polynomials_at_point(x_val, poly_sle, poly_lagrange, x_poly=None, y_poly=None):
+    """Evaluate all polynomials at a given point."""
+    x = sp.symbols('x')
+    t = sp.symbols('t')
+    
+    results = {
+        'SLE': evaluate_expression(poly_sle, x, x_val),
+        'Lagrange': evaluate_expression(poly_lagrange, x, x_val)
+    }
+    
+    # For parametric curves, find t value that gives closest x coordinate
+    if x_poly is not None and y_poly is not None:
+        t_vals = np.linspace(0, 1, 1000)
+        x_coords = [evaluate_expression(x_poly, t, t_val) for t_val in t_vals]
+        # Find t value where x_poly(t) is closest to x_val
+        closest_t_idx = min(range(len(x_coords)), key=lambda i: abs(x_coords[i] - x_val))
+        closest_t = t_vals[closest_t_idx]
+        results['Parametric'] = (
+            evaluate_expression(x_poly, t, closest_t),
+            evaluate_expression(y_poly, t, closest_t)
+        )
+    
+    return results
+
+# Add the following functions to the end of the file
 def plot_interpolation(points, poly_sle, poly_lagrange, x_poly, y_poly):
     x = sp.symbols('x')
     t = sp.symbols('t')
@@ -116,7 +145,7 @@ def plot_interpolation(points, poly_sle, poly_lagrange, x_poly, y_poly):
     plt.show()
 
 
-# Main code
+# Add the following code to the end of the file
 if __name__ == "__main__":
     choice = input("Choose input method (1: Function, 2: File): ")
     
@@ -134,21 +163,21 @@ if __name__ == "__main__":
             print("Invalid choice")
             exit()
         
-        # Display the interpolation points
+
+        # Perform interpolation
         print("\nGenerated interpolation points:")
         for point in points:
             print(f"({point[0]:.4f}, {point[1]:.4f})")
         
-        # Interpolate the points
+        # Interpolation using SLE
         polynomial_sle = interpolate_sle(points)
         print("\nInterpolation polynomial using SLE:", polynomial_sle)
         
-
-        # Interpolate the points using Lagrange formula
+        # Interpolation using Lagrange
         polynomial_lagrange = interpolate_lagrange(points)
         print("\nInterpolation polynomial using Lagrange formula:", polynomial_lagrange)
 
-        # Interpolate the points parametrically
+        # Interpolation using parametric curves   
         x_poly, y_poly = interpolate_parametric(points)
         print("\nParametric interpolation polynomials:")
         print("x(t) =", x_poly)
@@ -156,7 +185,30 @@ if __name__ == "__main__":
 
         plot_interpolation(points, polynomial_sle, polynomial_lagrange, x_poly, y_poly)
         
-
+        # Add point evaluation functionality
+        while True:
+            try:
+                eval_choice = input("\nWould you like to evaluate the polynomials at a specific point? (y/n): ")
+                if eval_choice.lower() != 'y':
+                    break
+                    
+                x_val = float(input("Enter x value: "))
+                if x_val < min(p[0] for p in points) or x_val > max(p[0] for p in points):
+                    print("Warning: Point is outside the interpolation interval!")
+                    
+                results = evaluate_polynomials_at_point(x_val, polynomial_sle, polynomial_lagrange, x_poly, y_poly)
+                
+                
+                print(f"\nValues at x = {x_val}:")
+                print(f"SLE Polynomial: {results['SLE']:.6f}")
+                print(f"Lagrange Polynomial: {results['Lagrange']:.6f}")
+                if 'Parametric' in results:
+                    param_x, param_y = results['Parametric']
+                    print(f"Parametric Interpolation: ({param_x:.6f}, {param_y:.6f})")
+                    
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+                
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        raise e  # This will show the full error traceback
+        raise e
