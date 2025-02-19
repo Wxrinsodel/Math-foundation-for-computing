@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Bezier Surface</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Bezier Surface Visualization</h1>
+        <div class="instructions">
+            <p><strong>Interaction Instructions:</strong></p>
+            <p>• Click and drag to rotate the surface</p>
+            <p>• Scroll to zoom in/out</p>
+            <p>• Right-click and drag to pan</p>
+            <p>• Double-click to reset the view</p>
+        </div>
+        <div class="plot-container">
+            {{ plot_html | safe }}
+        </div>
+    </div>
+</body>
+</html>
